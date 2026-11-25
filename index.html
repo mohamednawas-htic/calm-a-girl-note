@@ -1,0 +1,759 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#f8f4ef">
+  <meta name="description" content="A personal note, shared with care.">
+  <meta name="referrer" content="no-referrer">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'unsafe-inline'; script-src 'unsafe-inline'; img-src 'self' blob:; media-src 'self' blob:; connect-src 'self'; object-src 'none'; base-uri 'none'; form-action 'self'">
+  <title>A little note for you</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --paper: #f8f4ef;
+      --ink: #38332f;
+      --muted: #77706a;
+      --rose: #a96869;
+      --rose-deep: #855052;
+      --gold: #b39465;
+      --line: #e9dfd6;
+      --white: #fffdfa;
+      font-family: "Palatino Linotype", "Book Antiqua", Georgia, serif;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    [hidden] {
+      display: none !important;
+    }
+
+    body {
+      min-width: 320px;
+      min-height: 100vh;
+      margin: 0;
+      color: var(--ink);
+      isolation: isolate;
+      background:
+        radial-gradient(ellipse at 12% 8%, rgba(232, 210, 198, .34), transparent 30rem),
+        radial-gradient(ellipse at 91% 76%, rgba(229, 218, 198, .3), transparent 28rem),
+        var(--paper);
+    }
+
+    .background-video,
+    .video-wash {
+      position: fixed;
+      z-index: -2;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+    }
+
+    .background-video {
+      object-fit: cover;
+      opacity: 0;
+      transition: opacity .6s ease;
+    }
+
+    .video-wash {
+      display: none;
+      z-index: -1;
+      background:
+        linear-gradient(180deg, rgba(248, 244, 239, .71), rgba(248, 244, 239, .57) 48%, rgba(248, 244, 239, .75)),
+        rgba(248, 244, 239, .1);
+    }
+
+    body.has-background-video .background-video {
+      opacity: .58;
+    }
+
+    body.has-background-video .video-wash {
+      display: block;
+    }
+
+    .unlock-shell,
+    .page {
+      position: relative;
+      z-index: 0;
+      display: flex;
+      min-height: 100vh;
+      flex-direction: column;
+      align-items: center;
+      padding: 28px 20px 24px;
+    }
+
+    .unlock-shell {
+      justify-content: center;
+    }
+
+    .unlock-card,
+    .topline,
+    main,
+    footer {
+      width: min(100%, 660px);
+    }
+
+    .topline {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      color: var(--muted);
+      font-family: "Segoe UI", Arial, sans-serif;
+      font-size: .76rem;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+    }
+
+    .topline svg {
+      width: 21px;
+      height: 21px;
+      color: var(--rose);
+      flex: 0 0 auto;
+    }
+
+    .unlock-card {
+      padding: clamp(28px, 7vw, 48px);
+      border: 1px solid rgba(179, 148, 101, .26);
+      border-radius: 5px 28px 5px 28px;
+      background: rgba(255, 253, 250, .91);
+      box-shadow: 0 18px 55px rgba(72, 53, 43, .08);
+    }
+
+    .unlock-eyebrow {
+      margin: 0 0 14px;
+      color: var(--rose-deep);
+      font-family: "Segoe UI", Arial, sans-serif;
+      font-size: .77rem;
+      font-weight: 600;
+      letter-spacing: .18em;
+      text-align: center;
+      text-transform: uppercase;
+    }
+
+    .unlock-card h1 {
+      margin: 0;
+      font-size: clamp(2.2rem, 8vw, 3.2rem);
+      font-weight: 400;
+      letter-spacing: -.045em;
+      text-align: center;
+    }
+
+    .unlock-description {
+      margin: 16px 0 25px;
+      color: var(--muted);
+      font-size: 1.08rem;
+      line-height: 1.7;
+      text-align: center;
+    }
+
+    .password-form {
+      display: grid;
+      gap: 12px;
+    }
+
+    .password-form label {
+      color: var(--rose-deep);
+      font-family: "Segoe UI", Arial, sans-serif;
+      font-size: .86rem;
+      font-weight: 600;
+    }
+
+    .password-form input {
+      width: 100%;
+      min-height: 48px;
+      padding: 11px 13px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      color: var(--ink);
+      background: var(--white);
+      font: 1rem "Segoe UI", Arial, sans-serif;
+    }
+
+    .password-form input:focus-visible,
+    .password-form button:focus-visible,
+    .motion-toggle:focus-visible {
+      outline: 2px solid var(--rose);
+      outline-offset: 3px;
+    }
+
+    .password-form button,
+    .motion-toggle {
+      min-height: 44px;
+      padding: 10px 16px;
+      border: 1px solid var(--rose-deep);
+      border-radius: 999px;
+      color: var(--white);
+      background: var(--rose-deep);
+      font: 600 .9rem "Segoe UI", Arial, sans-serif;
+      cursor: pointer;
+    }
+
+    .password-form button:hover,
+    .motion-toggle:hover {
+      background: #704345;
+    }
+
+    .password-form button:disabled {
+      cursor: wait;
+      opacity: .72;
+    }
+
+    .unlock-status {
+      min-height: 1.5em;
+      margin: 16px 0 0;
+      color: var(--rose-deep);
+      font-family: "Segoe UI", Arial, sans-serif;
+      font-size: .87rem;
+      line-height: 1.5;
+      text-align: center;
+    }
+
+    .privacy-note {
+      max-width: 410px;
+      margin: 19px auto 0;
+      color: var(--muted);
+      font-family: "Segoe UI", Arial, sans-serif;
+      font-size: .75rem;
+      line-height: 1.6;
+      text-align: center;
+    }
+
+    .page {
+      overflow: hidden;
+      animation: arrive .8s ease-out both;
+    }
+
+    .page::before,
+    .page::after {
+      position: absolute;
+      z-index: 0;
+      width: 250px;
+      height: 250px;
+      border: 1px solid rgba(179, 148, 101, .19);
+      border-radius: 50%;
+      content: "";
+      pointer-events: none;
+    }
+
+    .page::before {
+      top: -165px;
+      left: -145px;
+      box-shadow: 0 0 0 18px rgba(179, 148, 101, .04), 0 0 0 38px rgba(179, 148, 101, .035);
+    }
+
+    .page::after {
+      right: -170px;
+      bottom: -180px;
+      width: 310px;
+      height: 310px;
+      box-shadow: 0 0 0 20px rgba(179, 148, 101, .04), 0 0 0 42px rgba(179, 148, 101, .035);
+    }
+
+    .topline {
+      z-index: 1;
+    }
+
+    .motion-toggle {
+      min-height: auto;
+      margin-left: auto;
+      padding: 8px 11px;
+      border-color: rgba(133, 80, 82, .35);
+      color: var(--rose-deep);
+      background: rgba(255, 253, 250, .9);
+      font-size: .72rem;
+      letter-spacing: .02em;
+    }
+
+    .motion-toggle:hover {
+      background: var(--white);
+    }
+
+    main,
+    footer {
+      position: relative;
+      z-index: 1;
+    }
+
+    main {
+      margin: auto 0;
+      padding: 52px 0 42px;
+    }
+
+    .intro {
+      margin-bottom: 30px;
+      text-align: center;
+    }
+
+    .eyebrow {
+      margin: 0 0 14px;
+      color: var(--rose-deep);
+      font-family: "Segoe UI", Arial, sans-serif;
+      font-size: .77rem;
+      font-weight: 600;
+      letter-spacing: .18em;
+      text-transform: uppercase;
+    }
+
+    .note-title {
+      margin: 0;
+      font-size: clamp(2.8rem, 9vw, 4.45rem);
+      font-weight: 400;
+      letter-spacing: -.055em;
+      line-height: 1.05;
+    }
+
+    .subtitle {
+      margin: 15px 0 0;
+      color: var(--muted);
+      font-size: clamp(1.05rem, 3vw, 1.22rem);
+      line-height: 1.6;
+    }
+
+    .note {
+      position: relative;
+      padding: clamp(26px, 6vw, 42px);
+      border: 1px solid rgba(179, 148, 101, .26);
+      border-radius: 5px 28px 5px 28px;
+      background: rgba(255, 253, 250, .9);
+      box-shadow: 0 18px 55px rgba(72, 53, 43, .07);
+    }
+
+    .note::before {
+      position: absolute;
+      top: 13px;
+      right: 15px;
+      width: 28px;
+      height: 28px;
+      border-top: 1px solid rgba(179, 148, 101, .45);
+      border-right: 1px solid rgba(179, 148, 101, .45);
+      content: "";
+    }
+
+    .note p {
+      margin: 0;
+      font-size: clamp(1.08rem, 3.2vw, 1.24rem);
+      line-height: 1.85;
+    }
+
+    .note p + p {
+      margin-top: 18px;
+    }
+
+    .memories {
+      margin: 34px 0 0;
+      padding: 26px;
+      border: 1px solid rgba(179, 148, 101, .26);
+      border-radius: 24px 5px 24px 5px;
+      background: rgba(255, 253, 250, .82);
+      text-align: center;
+    }
+
+    .memories h2 {
+      margin: 0;
+      font-size: 1.65rem;
+      font-weight: 400;
+    }
+
+    .memories-intro {
+      margin: 8px 0 20px;
+      color: var(--muted);
+      font-size: .98rem;
+      line-height: 1.6;
+    }
+
+    .memory-photo {
+      display: block;
+      width: min(100%, 340px);
+      height: 330px;
+      margin: 0 auto;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      background: #eee8e2;
+      object-fit: cover;
+      object-position: center 38%;
+    }
+
+    .memory-caption {
+      margin: 9px 0 0;
+      color: var(--muted);
+      font-family: "Segoe UI", Arial, sans-serif;
+      font-size: .78rem;
+      line-height: 1.5;
+    }
+
+    .promise {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 9px;
+      margin: 22px 0 0;
+      color: var(--rose-deep);
+      font-family: "Segoe UI", Arial, sans-serif;
+      font-size: .83rem;
+      letter-spacing: .015em;
+      text-align: center;
+    }
+
+    .promise svg {
+      width: 16px;
+      height: 16px;
+      flex: 0 0 auto;
+    }
+
+    .verse {
+      margin: 31px 0 0;
+      padding: 0 8px;
+      text-align: center;
+    }
+
+    .verse-mark {
+      display: block;
+      height: 24px;
+      color: var(--gold);
+      font-size: 2rem;
+      line-height: 1;
+    }
+
+    blockquote {
+      max-width: 520px;
+      margin: 7px auto 10px;
+      color: #5a5048;
+      font-size: clamp(1rem, 3vw, 1.15rem);
+      font-style: italic;
+      line-height: 1.8;
+    }
+
+    .citation {
+      margin: 0;
+      color: var(--muted);
+      font-family: "Segoe UI", Arial, sans-serif;
+      font-size: .76rem;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+    }
+
+    footer {
+      color: var(--muted);
+      font-size: .9rem;
+      text-align: center;
+    }
+
+    .footer-heart {
+      display: inline-block;
+      margin: 0 3px;
+      color: var(--rose);
+    }
+
+    @keyframes arrive {
+      from {
+        opacity: 0;
+        transform: translateY(10px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @media (max-width: 480px) {
+      .unlock-shell,
+      .page {
+        padding: 22px 18px 20px;
+      }
+
+      .unlock-card {
+        border-radius: 4px 23px 4px 23px;
+      }
+
+      main {
+        padding: 42px 0 34px;
+      }
+
+      .intro {
+        margin-bottom: 24px;
+      }
+
+      .note {
+        border-radius: 4px 23px 4px 23px;
+      }
+
+      .memories {
+        padding: 22px 18px;
+      }
+
+      .memory-photo {
+        height: auto;
+        max-height: 430px;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *,
+      *::before,
+      *::after {
+        animation-duration: .01ms !important;
+        animation-iteration-count: 1 !important;
+        scroll-behavior: auto !important;
+      }
+    }
+  </style>
+</head>
+<body>
+  <video class="background-video" id="background-video" muted loop playsinline preload="metadata" aria-hidden="true"></video>
+  <div class="video-wash" aria-hidden="true"></div>
+
+  <main class="unlock-shell" id="unlock-shell">
+    <header class="topline" aria-label="A personal note">
+      <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+        <path d="M12 20.2S3.5 15.1 3.5 9.2A4.2 4.2 0 0 1 12 7.7a4.2 4.2 0 0 1 8.5 1.5c0 5.9-8.5 11-8.5 11Z" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+      A little note for you
+    </header>
+    <section class="unlock-card" aria-labelledby="unlock-title">
+      <p class="unlock-eyebrow">A private note</p>
+      <h1 id="unlock-title">Just for you.</h1>
+      <p class="unlock-description">Enter the password I sent you to open this note.</p>
+      <form class="password-form" id="password-form">
+        <label for="password">Password</label>
+        <input id="password" name="password" type="password" autocomplete="current-password" required>
+        <button id="unlock-button" type="submit">Open note</button>
+      </form>
+      <p class="unlock-status" id="unlock-status" aria-live="polite"></p>
+      <p class="privacy-note">The note is unlocked in this browser. The password is not sent to the website.</p>
+    </section>
+  </main>
+
+  <div class="page" id="note-page" hidden>
+    <header class="topline" aria-label="A personal note">
+      <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+        <path d="M12 20.2S3.5 15.1 3.5 9.2A4.2 4.2 0 0 1 12 7.7a4.2 4.2 0 0 1 8.5 1.5c0 5.9-8.5 11-8.5 11Z" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+      A little note for you
+      <button class="motion-toggle" id="motion-toggle" type="button" aria-pressed="false">Play background video</button>
+    </header>
+
+    <main>
+      <section class="intro" aria-labelledby="page-title">
+        <p class="eyebrow" id="eyebrow"></p>
+        <h1 class="note-title" id="page-title"></h1>
+        <p class="subtitle" id="subtitle"></p>
+      </section>
+
+      <article class="note" aria-label="My apology">
+        <p id="apology-first"></p>
+        <p id="apology-second"></p>
+      </article>
+
+      <section class="memories" aria-labelledby="memories-title">
+        <h2 id="memories-title"></h2>
+        <p class="memories-intro" id="memories-intro"></p>
+        <img class="memory-photo" id="memory-photo" alt="">
+        <p class="memory-caption" id="photo-caption"></p>
+      </section>
+
+      <p class="promise">
+        <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <path d="M12 3.5 19 6v5.1c0 4.5-2.9 7.6-7 9.4-4.1-1.8-7-4.9-7-9.4V6l7-2.5Z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+          <path d="m9 12 2 2 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        <span id="promise"></span>
+      </p>
+
+      <section class="verse" aria-label="A Bible verse">
+        <span class="verse-mark" aria-hidden="true">“</span>
+        <blockquote id="verse"></blockquote>
+        <p class="citation" id="citation"></p>
+      </section>
+    </main>
+
+    <footer>
+      <span id="footer-copy"></span>
+      <span class="footer-heart" aria-hidden="true">♥</span>
+    </footer>
+  </div>
+
+  <script>
+    const iterationsLimit = 2000000;
+    const passwordForm = document.getElementById("password-form");
+    const passwordInput = document.getElementById("password");
+    const unlockButton = document.getElementById("unlock-button");
+    const unlockStatus = document.getElementById("unlock-status");
+    const unlockShell = document.getElementById("unlock-shell");
+    const notePage = document.getElementById("note-page");
+    const backgroundVideo = document.getElementById("background-video");
+    const motionToggle = document.getElementById("motion-toggle");
+    let photoUrl;
+    let videoUrl;
+
+    function parseEnvelope(buffer) {
+      const bytes = new Uint8Array(buffer);
+      if (bytes.length < 52 || new TextDecoder().decode(bytes.subarray(0, 4)) !== "CAG1") {
+        throw new Error("A protected file is invalid or incomplete.");
+      }
+
+      const iterations = new DataView(bytes.buffer, bytes.byteOffset, bytes.byteLength).getUint32(4);
+      if (iterations < 100000 || iterations > iterationsLimit) {
+        throw new Error("A protected file has invalid encryption settings.");
+      }
+
+      return {
+        bytes,
+        iterations,
+        salt: bytes.slice(8, 24),
+        iv: bytes.slice(24, 36),
+        ciphertext: bytes.subarray(36),
+      };
+    }
+
+    async function fetchEnvelope(name) {
+      const url = new URL(`vault/${name}.bin`, document.baseURI);
+      const response = await fetch(url, { cache: "no-store" });
+      if (!response.ok) {
+        throw new Error(`Could not download protected file ${name} (${response.status}).`);
+      }
+
+      return parseEnvelope(await response.arrayBuffer());
+    }
+
+    async function deriveKey(password, envelope) {
+      const material = await crypto.subtle.importKey(
+        "raw",
+        new TextEncoder().encode(password),
+        "PBKDF2",
+        false,
+        ["deriveKey"],
+      );
+      return crypto.subtle.deriveKey(
+        {
+          name: "PBKDF2",
+          hash: "SHA-256",
+          salt: envelope.salt,
+          iterations: envelope.iterations,
+        },
+        material,
+        { name: "AES-GCM", length: 256 },
+        false,
+        ["decrypt"],
+      );
+    }
+
+    async function decryptEnvelope(envelope, key, reference) {
+      const sameSalt = envelope.salt.every((byte, index) => byte === reference.salt[index]);
+      if (!sameSalt || envelope.iterations !== reference.iterations) {
+        throw new Error("The protected files do not belong to the same note.");
+      }
+
+      return crypto.subtle.decrypt(
+        { name: "AES-GCM", iv: envelope.iv, tagLength: 128 },
+        key,
+        envelope.ciphertext,
+      );
+    }
+
+    function fillText(id, value) {
+      document.getElementById(id).textContent = value;
+    }
+
+    function updateMotionToggle() {
+      const isPlaying = !backgroundVideo.paused && !backgroundVideo.ended;
+      motionToggle.textContent = isPlaying ? "Pause background video" : "Play background video";
+      motionToggle.setAttribute("aria-pressed", String(isPlaying));
+    }
+
+    async function openNote(password) {
+      const contentEnvelope = await fetchEnvelope("content");
+      let key = await deriveKey(password, contentEnvelope);
+      const contentBytes = await decryptEnvelope(contentEnvelope, key, contentEnvelope);
+      const content = JSON.parse(new TextDecoder().decode(contentBytes));
+
+      unlockStatus.textContent = "Password accepted. Downloading the encrypted video; this may take a little while.";
+      const [photoEnvelope, videoEnvelope] = await Promise.all([
+        fetchEnvelope("photo"),
+        fetchEnvelope("video"),
+      ]);
+      const [photoBytes, videoBytes] = await Promise.all([
+        decryptEnvelope(photoEnvelope, key, contentEnvelope),
+        decryptEnvelope(videoEnvelope, key, contentEnvelope),
+      ]);
+
+      photoUrl = URL.createObjectURL(new Blob([photoBytes], { type: "image/jpeg" }));
+      videoUrl = URL.createObjectURL(new Blob([videoBytes], { type: "video/mp4" }));
+
+      fillText("eyebrow", content.eyebrow);
+      fillText("page-title", content.title);
+      fillText("subtitle", content.subtitle);
+      fillText("apology-first", content.apologyFirst);
+      fillText("apology-second", content.apologySecond);
+      fillText("memories-title", content.memoriesTitle);
+      fillText("memories-intro", content.memoriesIntro);
+      fillText("photo-caption", content.photoCaption);
+      fillText("promise", content.promise);
+      fillText("verse", content.verse);
+      fillText("citation", content.citation);
+      fillText("footer-copy", content.footer);
+
+      const photo = document.getElementById("memory-photo");
+      photo.src = photoUrl;
+      photo.alt = content.photoAlt;
+      backgroundVideo.poster = photoUrl;
+      backgroundVideo.src = videoUrl;
+      backgroundVideo.autoplay = !window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+      document.body.classList.add("has-background-video");
+      notePage.hidden = false;
+      unlockShell.hidden = true;
+      key = null;
+      if (backgroundVideo.autoplay) {
+        backgroundVideo.play().catch(() => {
+          motionToggle.title = "Automatic playback was blocked. Tap to play the video.";
+        });
+      }
+      updateMotionToggle();
+    }
+
+    passwordForm.addEventListener("submit", async (event) => {
+      event.preventDefault();
+      unlockButton.disabled = true;
+      passwordInput.disabled = true;
+      unlockStatus.textContent = "Checking the password…";
+
+      try {
+        await openNote(passwordInput.value);
+      } catch (error) {
+        if (error instanceof DOMException && error.name === "OperationError") {
+          unlockStatus.textContent = "That password didn’t unlock the note. Please check it and try again.";
+        } else {
+          console.error("Unable to open the protected note:", error);
+          unlockStatus.textContent = "The protected note could not be loaded. Check your connection and try again.";
+        }
+      } finally {
+        passwordInput.value = "";
+        passwordInput.disabled = false;
+        unlockButton.disabled = false;
+      }
+    });
+
+    backgroundVideo.addEventListener("playing", updateMotionToggle);
+    backgroundVideo.addEventListener("pause", updateMotionToggle);
+    backgroundVideo.addEventListener("ended", updateMotionToggle);
+    motionToggle.addEventListener("click", () => {
+      if (backgroundVideo.paused) {
+        backgroundVideo.play().catch((error) => {
+          console.error("Unable to play the background video:", error);
+          motionToggle.textContent = "Video could not play";
+        });
+      } else {
+        backgroundVideo.pause();
+      }
+    });
+
+    window.addEventListener("beforeunload", () => {
+      if (photoUrl) URL.revokeObjectURL(photoUrl);
+      if (videoUrl) URL.revokeObjectURL(videoUrl);
+    });
+  </script>
+</body>
+</html>
